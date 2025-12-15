@@ -1,0 +1,19 @@
+{
+  "name": "tiles2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@mapbox/vector-tile": "^2.0.4",
+    "better-sqlite3": "^12.5.0",
+    "p-limit": "^3.1.0",
+    "pbf": "^4.0.1"
+  }
+}
