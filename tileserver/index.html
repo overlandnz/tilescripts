@@ -1,0 +1,71 @@
+<html>
+
+<head>
+    <title>Tile Server</title>
+
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            position: absolute;
+            top: 40px;
+            bottom: 0;
+            width: 100%;
+        }
+
+        #toolbar {
+            position: absolute;
+            top: 0;
+            height: 40px;
+            width: 100%;
+            background-color: #efefef;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="toolbar">
+        <a href="javascript:" id="applyJsonStyle">Apply style.json</a>
+    </div>
+    <div id="map"></div>
+    <script>
+        mapboxgl.accessToken = '{{MAPBOX_TOKEN}}';
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/standard', // Use the standard style for the map
+            projection: 'globe', // display the map as a globe
+            zoom: 1, // initial zoom level, 0 is the world view, higher values zoom in
+            center: [30, 15] // center the map on this longitude and latitude
+        });
+
+        map.addControl(new mapboxgl.NavigationControl());
+
+        map.on('style.load', () => {
+            map.setFog({}); // Set the default atmosphere style
+        }); 
+
+        // Toolbar stuff
+        document.getElementById('applyJsonStyle').addEventListener('click', () => {
+            fetch('style.json')
+                .then(response => response.json())
+                .then(style => {
+                    map.setStyle(style);
+                });
+        });
+    </script>
+</body>
+
+</html>

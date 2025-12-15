@@ -19,13 +19,6 @@ function isGzip(buf) {
   return buf && buf.length >= 2 && buf[0] === 0x1f && buf[1] === 0x8b;
 }
 
-function toUngzippedPbf(buf) {
-  // Most vector-tile MBTiles store gzipped MVT in tile_data.
-  // If it looks gzipped, gunzip; otherwise write as-is.
-  if (isGzip(buf)) return zlib.gunzipSync(buf);
-  return buf;
-}
-
 async function main() {
   const args = process.argv.slice(2);
   if (args.length < 2) {
