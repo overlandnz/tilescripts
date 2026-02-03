@@ -9,12 +9,13 @@ const fg = require("fast-glob");
 function usage() {
   console.log(`
 Usage:
-  node zipper.js <inputTilesDir> <outputDir> --maxMB=<N> [--prefix=tiles] [--level=6]
-  node zipper.js <inputTilesDir> <outputDir> --maxBytes=<N> [--prefix=tiles] [--level=6]
+  node zipper.js <inputTilesDir> <outputDir> --maxMB=<N> [--ext=pbf] [--prefix=tiles] [--level=6]
+  node zipper.js <inputTilesDir> <outputDir> --maxBytes=<N> [--ext=pbf] [--prefix=tiles] [--level=6]
 
 Examples:
-  node zipper.js ./tiles ./zips --maxMB=250 --prefix=topo --level=6
-  node zipper.js ./tiles ./zips --maxBytes=262144000 --prefix=topo --level=6
+  node zipper.js ./tiles ./zips --maxMB=250 --ext=pbf --prefix=topo --level=6
+  node zipper.js ./tiles ./zips --maxBytes=262144000 --ext=pbf --prefix=topo --level=6
+  node zipper.js ./tiles ./zips --maxMB=250 --ext=pbf,mvt --prefix=topo --level=6
 
 Notes:
   - Zips contain relative paths like "z/x/y.pbf"
@@ -87,6 +88,13 @@ async function main() {
     : Math.max(1, Math.floor(parseFloat(maxMB) * 1024 * 1024));
 
   const prefix = parseArg("prefix", "tiles");
+  const extArg = parseArg("ext", "pbf");
+  const exts = extArg
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((e) => (e.startsWith(".") ? e.slice(1) : e));
+  if (!exts.length) usage();
   const level = Math.min(9, Math.max(0, parseInt(parseArg("level", "6"), 10)));
 
   if (!fs.existsSync(inputDir)) {
@@ -95,10 +103,13 @@ async function main() {
   }
   await fs.promises.mkdir(outputDir, { recursive: true });
 
-  // Find all PBF files under inputDir
-  const files = await fg("**/*.pbf", { cwd: inputDir, absolute: true, onlyFiles: true });
+  // Find all matching files under inputDir
+  const globPattern = exts.length === 1
+    ? `**/*.${exts[0]}`
+    : `**/*.{${exts.join(",")}}`;
+  const files = await fg(globPattern, { cwd: inputDir, absolute: true, onlyFiles: true });
   if (!files.length) {
-    console.error(`No .pbf files found under: ${inputDir}`);
+    console.error(`No .${exts.join(", .")} files found under: ${inputDir}`);
     process.exit(3);
   }
 
@@ -114,7 +125,7 @@ async function main() {
     totalUncompressed += s;
   }
 
-  console.log(`Found ${files.length.toLocaleString()} .pbf files`);
+  console.log(`Found ${files.length.toLocaleString()} .${exts.join(", .")} files`);
   console.log(`Total uncompressed size: ${(totalUncompressed / (1024 * 1024)).toFixed(1)} MB`);
   console.log(`Max zip size: ${(maxZipBytes / (1024 * 1024)).toFixed(1)} MB`);
   console.log(`Compression level: ${level}`);
