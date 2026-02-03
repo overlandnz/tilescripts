@@ -11,6 +11,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.981.0",
     "@fastify/compress": "^8.3.0",
     "@mapbox/vector-tile": "^2.0.4",
     "archiver": "^7.0.1",
