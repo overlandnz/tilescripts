@@ -50,7 +50,11 @@ function parseArgs(argv) {
 async function main() {
     const { tilesPath, outputDir, threads, apiKey, tileType } = parseArgs(process.argv.slice(2));
 
-    const resolvedTilesPath = tilesPath || await prompt('Enter tiles JSON path: ');
+    if (!tilesPath) {
+        console.error('Missing required parameter: --tiles <path>');
+        process.exit(1);
+    }
+    const resolvedTilesPath = tilesPath;
     const tiles = JSON.parse(fs.readFileSync(resolvedTilesPath));
 
     if (!apiKey) {
@@ -66,8 +70,12 @@ async function main() {
     // URL template
     const TILE_URL_TEMPLATE = 'https://basemaps.linz.govt.nz/v1/tiles/{TYPE}/WebMercatorQuad/{z}/{x}/{y}.webp?api={APIKEY}';
 
-    const OUTPUT_DIR = outputDir || await prompt('Enter the directory to save tiles: ');
-    const concurrencyInput = threads || await prompt('Enter concurrent downloads (default 4): ');
+    if (!outputDir) {
+        console.error('Missing required parameter: --output <dir>');
+        process.exit(1);
+    }
+    const OUTPUT_DIR = outputDir;
+    const concurrencyInput = threads;
     const CONCURRENCY = Math.max(1, Number.parseInt(concurrencyInput, 10) || 4);
 
     // Function to create a directory if it doesn't exist
